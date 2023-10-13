@@ -91,7 +91,8 @@ if req.status_code == 200:
             print(f"Your joke was: \n {joke_txt}")
     print(f"answer was {ans}")
     logger.info(f"User input accepted: {inp}")
-    # todo: if ans == y, add joke to db
+    
+    # when user likes a joke, it is inserted into the DB 
     if ans == 'y':
         try:
             logger.info(f"Inserting joke into db")
@@ -99,5 +100,5 @@ if req.status_code == 200:
         except:
             logger.error(f"Couldn't insert joke into db")
 else:
-    logger.error(f"Can't connecto to API. Status code: {str(req.status_code)}")
+    logger.error(f"Can't connect to API. Status code: {str(req.status_code)}")
     print(f"Problems connecting to API. Status code: {str(req.status_code)}")

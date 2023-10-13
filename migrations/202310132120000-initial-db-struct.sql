@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS liked_jokes (
       id int NOT NULL AUTO_INCREMENT,
       text varchar(255) NOT NULL,
