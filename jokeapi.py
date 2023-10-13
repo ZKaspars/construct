@@ -1,9 +1,5 @@
-import json
 import requests
-import logging
-import logging.config
-from configparser import ConfigParser
-import yaml
+import json
 from db import *
 
 api_url = "https://v2.jokeapi.dev/joke/Any"
