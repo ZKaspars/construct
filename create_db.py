@@ -18,3 +18,9 @@ connection = mysql.connector.connect(host=mysql_host, database=mysql_db, user= m
 cur = connection.cursor()
 
 cur.execute("CREATE DATABASE IF NOT EXISTS construct")
+cur.execute("CREATE TABLE IF NOT EXISTS construct.liked_jokes (\
+      id int NOT NULL,\
+      text varchar(255) NOT NULL,\
+      type varchar(10) NOT NULL,\
+      flags varchar(255) NOT NULL,\
+      PRIMARY KEY(id))")

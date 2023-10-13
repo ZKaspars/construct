@@ -4,7 +4,7 @@ import logging
 import logging.config
 from configparser import ConfigParser
 import yaml
-
+from db import *
 
 api_url = "https://v2.jokeapi.dev/joke/Any"
 
@@ -40,12 +40,13 @@ if req.status_code == 200:
     # load response into json
     parsed_json = json.loads(req.text)
     logger.debug(f"received json:{parsed_json}")
-
+    joke_type = parsed_json['type']
+    joke_id = parsed_json['id']
     json_flags = parsed_json['flags']
 
     # handle joke type (two-part joke or one liner)
     joke_txt = ''
-    if parsed_json['type'] == 'twopart':
+    if joke_type == 'twopart':
         joke_txt = f"{parsed_json['setup']} \n {parsed_json['delivery']}"
     else:
         joke_txt = parsed_json['joke']
@@ -91,5 +92,12 @@ if req.status_code == 200:
     print(f"answer was {ans}")
     logger.info(f"User input accepted: {inp}")
     # todo: if ans == y, add joke to db
+    if ans == 'y':
+        try:
+            logger.info(f"Inserting joke into db")
+            insert_joke_into_db(joke_id,joke_txt,joke_type,flag_list)
+        except:
+            logger.error(f"Couldn't insert joke into db")
 else:
-    print(f"Problems connecting to api. Status code: {str(req.status_code)}")
+    logger.error(f"Can't connecto to API. Status code: {str(req.status_code)}")
+    print(f"Problems connecting to API. Status code: {str(req.status_code)}")

@@ -44,6 +44,22 @@ def init_db():
 	
 init_db()
 
+#insert joke into db
+def insert_joke_into_db(id, text, type, flags):
+	data = (id, text, type, str(flags))
+	sql_query = "INSERT INTO liked_jokes (id, text, type, flags) VALUES (%s, %s, %s, %s)"
+	try:
+		# Execute the SQL query using data variable
+		cursor.execute(sql_query, data)
+		# Commit the transaction
+		conn.commit()
+		logger.info( sql_query )
+		logger.info("Successful insertion")
+	except mysql.connector.Error as error:
+		logger.error( sql_query )
+		logger.error("Error: {}".format(error))
+
+
 def get_cursor():
 	global conn
 	try:
