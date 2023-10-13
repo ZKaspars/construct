@@ -1,8 +1,37 @@
 import json
 import requests
-
+import logging
+import logging.config
+from configparser import ConfigParser
+import yaml
+from db import *
 
 api_url = "https://v2.jokeapi.dev/joke/Any"
+
+# Loading logging configuration
+with open('./log_migrate_db.yaml', 'r') as stream:
+    config = yaml.safe_load(stream)
+
+logging.config.dictConfig(config)
+
+#Creating logger
+logger = logging.getLogger('root')
+
+# Initiating and reading config values
+logger.info('Loading configuration from file')
+
+try:
+	config = ConfigParser()
+	config.read('config.ini')
+
+	mysql_host = config.get('mysql_config', 'mysql_host')
+	mysql_db = config.get('mysql_config', 'mysql_db')
+	mysql_user = config.get('mysql_config', 'mysql_user')
+	mysql_passwd = config.get('mysql_config', 'mysql_pass')
+
+except:
+	logger.exception('')
+logger.info('DONE')
 
 req = requests.get(api_url)
 
@@ -10,13 +39,14 @@ req = requests.get(api_url)
 if req.status_code == 200:
     # load response into json
     parsed_json = json.loads(req.text)
-    print(parsed_json)
-
+    logger.debug(f"received json:{parsed_json}")
+    joke_type = parsed_json['type']
+    joke_id = parsed_json['id']
     json_flags = parsed_json['flags']
 
     # handle joke type (two-part joke or one liner)
     joke_txt = ''
-    if parsed_json['type'] == 'twopart':
+    if joke_type == 'twopart':
         joke_txt = f"{parsed_json['setup']} \n {parsed_json['delivery']}"
     else:
         joke_txt = parsed_json['joke']
@@ -32,13 +62,16 @@ if req.status_code == 200:
 
     # print joke's flags
     if len(flag_list) > 0:
-        print(f"flags : {flag_list}")
+        print(f"flags on this joke : {flag_list}")
+        logger.debug(f"Flags found: {flag_list}")
     else:
         print("This joke does not have any flags")
+        logger.debug("No flags found")
 
 
     ans = None
     # loop until valid user input
+    logger.debug(f"User entered voting")
     while True:
         try:
             # user votes on joke
@@ -51,10 +84,21 @@ if req.status_code == 200:
             else:
                 print("Only Y or N answers allowed!!")
                 print(f"Your joke was: \n {joke_txt}")
+                logger.info(f"User input was invalid: {inp}")
         except ValueError:
             print("Error: Unexpected value entered.")
+            logger.warn(f"User has entered unexpected input: {inp}")
             print(f"Your joke was: \n {joke_txt}")
     print(f"answer was {ans}")
-    # todo: if ans == y, add joke to db
+    logger.info(f"User input accepted: {inp}")
+    
+    # when user likes a joke, it is inserted into the DB 
+    if ans == 'y':
+        try:
+            logger.info(f"Inserting joke into db")
+            insert_joke_into_db(joke_id,joke_txt,joke_type,flag_list)
+        except:
+            logger.error(f"Couldn't insert joke into db")
 else:
-    print(f"Problems connecting to api. Status code: {str(req.status_code)}")
+    logger.error(f"Can't connect to API. Status code: {str(req.status_code)}")
+    print(f"Problems connecting to API. Status code: {str(req.status_code)}")
