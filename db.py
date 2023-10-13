@@ -8,13 +8,15 @@ import os
 import time
 from datetime import datetime
 
-
-logger = logging.getLogger('root')
-
 # Loading logging configuration
 with open('./log_migrate_db.yaml', 'r') as stream:
     config = yaml.safe_load(stream)
-	
+
+logging.config.dictConfig(config)
+
+#Creating logger
+logger = logging.getLogger('root')
+
 # Initiating and reading config values
 logger.info('Loading configuration from file')
 
@@ -39,7 +41,9 @@ def init_db():
         password=mysql_passwd,
         database=mysql_db
         )
+	
 init_db()
+
 def get_cursor():
 	global conn
 	try:
@@ -47,13 +51,12 @@ def get_cursor():
 		conn.commit()
 	except mysql.connector.Error as err:
 		logger.error("No connection to db " + str(err))
-		print("No connection to db " + str(err))
 		conn = init_db()
 		conn.commit()
 	return conn.cursor()
 	
 
-# Opening conn to mysql DB
+# Opening connection to mysql DB
 logger.info('Connecting to MySQL DB')
 try:
 
@@ -61,12 +64,10 @@ try:
 	if conn.is_connected():
 		db_Info = conn.get_server_info()
 		logger.info('Connected to MySQL database. MySQL Server version on ' + str(db_Info))
-		print('Connected to MySQL database. MySQL Server version on ' + str(db_Info))
 		cursor = conn.cursor()
 		cursor.execute("select database();")
 		record = cursor.fetchone()
-		logger.debug('Your connected to - ' + str(record))
-		print('Your connected to - ' + str(record))
+		logger.debug('You are connected to - ' + record[0])
 		conn.commit()
 except Exception as e:
 	logger.error('Error while connecting to MySQL ' + str(e))
