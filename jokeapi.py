@@ -1,8 +1,14 @@
 import requests
 import json
 from db import *
+import choice_selector
 
 api_url = "https://v2.jokeapi.dev/joke/Any"
+
+try:
+    api_url = choice_selector.runSelections()
+except Error as e:
+    logger.error(f"Error selecting categories/flags:{e}")
 
 # Loading logging configuration
 with open('./log_migrate_db.yaml', 'r') as stream:
@@ -85,7 +91,6 @@ if req.status_code == 200:
             print("Error: Unexpected value entered.")
             logger.warn(f"User has entered unexpected input: {inp}")
             print(f"Your joke was: \n {joke_txt}")
-    print(f"answer was {ans}")
     logger.info(f"User input accepted: {inp}")
     
     # when user likes a joke, it is inserted into the DB 
