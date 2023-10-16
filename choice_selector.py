@@ -3,17 +3,19 @@ from db import *
 
 api_url = "https://v2.jokeapi.dev/joke/"
 
+# these lists are used as key when sorting
 categories = ["Programming","Misc","Dark"\
                 ,"Pun","Spooky","Christmas","Any"]
 
 flags = ["nsfw","religious","political","racist",\
             "sexist","explicit","None"]
 
+# initialize empty lists
 chosen_flags = []
 
 chosen_categories = []
 
-
+# function called only when user choice needs to be added to flags or categories
 def add_selection(type,choice):
     global chosen_categories
     global chosen_flags
@@ -39,8 +41,9 @@ def add_selection(type,choice):
                 chosen_flags.append(choice)
                 logger.debug(f"{choice} added to {chosen_flags}")
     
-
+# user selects their flags and categories with this function
 def choice_selector(kind):
+    #initialize the function, set variables according to selection
     try:
         working_list = []
         full_name = ""
@@ -60,10 +63,13 @@ def choice_selector(kind):
     except Error as e:
         logging.error(f"Ran into error: {e}")
 
+    # loop until user has finished choosing
     while True:
         try:
             answer = ""
             acceptable_answers = [0,1,2,3,4,5,6,"none","any","s"]
+
+            # prints possible choices in one line
             for index, value in enumerate(working_list):
                 print("Choice {}: ||{}||".format(index, value), end=" ")
 
@@ -78,9 +84,11 @@ def choice_selector(kind):
             if inp == "s":
                 logging.debug(f"{inp} stopped the selection")
                 break
+            # load input as answer only if it exists in current list
             if working_list[int(inp)]:
                 answer = working_list[int(inp)]
                 logging.debug(f"{inp} is in working list:{working_list}")
+            #if user chooses any or none, all preferences are deleted from appropriate list
             if answer == "Any" or answer == "None":
                 logging.info(f"{working_list[int(inp)]} selected")
                 add_selection(type,working_list[int(inp)])
@@ -95,30 +103,35 @@ def choice_selector(kind):
         except Error as e:
             logger.error(f"Error: {e}")
 
+# this is called to set both category and flags using previous function
 def runSelections():
     global chosen_categories
     global chosen_flags
     choice_selector("c")
     choice_selector("f")
+    # sort in the correct order, otherwise API will not accept the link
     chosen_categories= sorted(chosen_categories, key=lambda x: categories.index(x))
     chosen_flags = sorted(chosen_flags, key=lambda x: flags.index(x))
 
     logger.info(f"Flags list:{chosen_flags}, Categories list: {chosen_categories}")
-
+    # convert to a string from list
     categories_string = ','.join(chosen_categories)
     flags_string = ','.join(chosen_flags)
 
     final_url = ""
-
+    # if any category and no blacklists, provide basic url
     if not chosen_categories and not chosen_flags:
         logger.debug("Flags and categories are empty")
         final_url = "https://v2.jokeapi.dev/joke/Any"
+    # url if there are no blacklisted flags but there are categories
     elif not chosen_flags:
         logger.debug(f"No Flags and Categories: {categories_string} received")
         final_url = f"{api_url}{categories_string}"
+    # url with categories and blacklisted flags
     else:
         logger.debug(f"Categories: {categories_string}, and Flags: {flags_string} received")
         final_url = f"{api_url}{categories_string}?blacklistFlags={flags_string}"
 
     logger.info(f"final_url is {final_url}")
+    # return combined url
     return final_url

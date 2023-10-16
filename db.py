@@ -55,6 +55,7 @@ def insert_joke_into_db(id, text, type, flags):
 		# Commit the transaction
 		conn.commit()
 		logger.info( sql_query )
+		logger.info(f"id: {id}, text: {text}, type: {type}, flags: {flags} ")
 		logger.info("Successful insertion")
 	except Error as error:
 		logger.error( sql_query )
