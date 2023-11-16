@@ -49,11 +49,13 @@ def choice_selector(kind):
         full_name = ""
         select_type = ""
         if kind == "c":
+            print("ccc")
             working_list = categories
             full_name = "CATEGORIES" 
             select_type = "INCLUDE"
             logger.info("Selecting category")
         if kind == "f":
+            print("fff")
             working_list = flags
             select_type = "EXCLUDE"
             full_name = "FLAGS"
@@ -91,12 +93,13 @@ def choice_selector(kind):
             #if user chooses any or none, all preferences are deleted from appropriate list
             if answer == "Any" or answer == "None":
                 logging.info(f"{working_list[int(inp)]} selected")
-                add_selection(type,working_list[int(inp)])
-                logging.debug(f"type: adding selection {type} in working list:{working_list}")
+                add_selection(kind,working_list[int(inp)])
+                logging.debug(f"type: adding selection {kind} in working list:{working_list}")
+                answer = None
                 break
             if working_list[int(inp)]:
                 logging.info(f"{working_list[int(inp)]} selected")
-                add_selection(type,working_list[int(inp)])
+                add_selection(kind,working_list[int(inp)])
             else:
                 print("invalid input")
                 logging.debug(f"{inp} was invalid")
@@ -127,8 +130,12 @@ def runSelections():
     elif not chosen_flags:
         logger.debug(f"No Flags and Categories: {categories_string} received")
         final_url = f"{api_url}{categories_string}"
-    # url with categories and blacklisted flags
+    # url with only flags
+    elif not chosen_categories and chosen_flags:
+        logger.debug(f"No Flags and Categories: {flags_string} received")
+        final_url = f"https://v2.jokeapi.dev/joke/Any?{flags_string} "
     else:
+    # url with categories and blacklisted flags
         logger.debug(f"Categories: {categories_string}, and Flags: {flags_string} received")
         final_url = f"{api_url}{categories_string}?blacklistFlags={flags_string}"
 
