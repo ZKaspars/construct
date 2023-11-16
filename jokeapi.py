@@ -40,36 +40,38 @@ req = requests.get(api_url)
 # check if connection to api exists 
 if req.status_code == 200:
     # load response into json
-    parsed_json = json.loads(req.text)
-    logger.debug(f"received json:{parsed_json}")
-    joke_type = parsed_json['type']
-    joke_id = parsed_json['id']
-    json_flags = parsed_json['flags']
+    try:
+        parsed_json = json.loads(req.text)
+        logger.debug(f"received json:{parsed_json}")
+        joke_type = parsed_json['type']
+        joke_id = parsed_json['id']
+        json_flags = parsed_json['flags']
 
-    # handle joke type (two-part joke or one liner)
-    joke_txt = ''
-    if joke_type == 'twopart':
-        joke_txt = f"{parsed_json['setup']} \n {parsed_json['delivery']}"
-    else:
-        joke_txt = parsed_json['joke']
+        # handle joke type (two-part joke or one liner)
+        joke_txt = ''
+        if joke_type == 'twopart':
+            joke_txt = f"{parsed_json['setup']} \n {parsed_json['delivery']}"
+        else:
+            joke_txt = parsed_json['joke']
 
-    # print joke for user
-    print(f"Your joke is: \n \n {joke_txt} \n")
+        # print joke for user
+        print(f"Your joke is: \n \n {joke_txt} \n")
 
-    # get flags of joke
-    flag_list = []
-    for flag,val in json_flags.items():
-        if val == True:
-            flag_list.append(flag)
+        # get flags of joke
+        flag_list = []
+        for flag,val in json_flags.items():
+            if val == True:
+                flag_list.append(flag)
 
-    # print joke's flags
-    if len(flag_list) > 0:
-        print(f"flags on this joke : {flag_list}")
-        logger.debug(f"Flags found: {flag_list}")
-    else:
-        print("This joke does not have any flags")
-        logger.debug("No flags found")
-
+        # print joke's flags
+        if len(flag_list) > 0:
+            print(f"flags on this joke : {flag_list}")
+            logger.debug(f"Flags found: {flag_list}")
+        else:
+            print("This joke does not have any flags")
+            logger.debug("No flags found")
+    except Error as e:
+        logging.error(f"Ran into error: {e}")
 
     ans = None
     # loop until valid user input
