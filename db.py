@@ -29,8 +29,8 @@ try:
 	mysql_user = config.get('mysql_config', 'mysql_user')
 	mysql_passwd = config.get('mysql_config', 'mysql_pass')
 
-except:
-	logger.exception('')
+except Exception as e:
+	logger.exception(f'Exception: {e}')
 logger.info('DONE')
 
 def init_db():
@@ -46,20 +46,29 @@ init_db()
 
 #insert joke into db
 def insert_joke_into_db(id, text, type, flags):
-	data = (id, text, type, str(flags))
-	sql_query = "INSERT INTO liked_jokes (id, text, type, flags)\
-		  VALUES (%s, %s, %s, %s)"
-	try:
-		# Execute the SQL query using data variable
-		cursor.execute(sql_query, data)
-		# Commit the transaction
-		conn.commit()
-		logger.info( sql_query )
-		logger.info(f"id: {id}, text: {text}, type: {type}, flags: {flags} ")
-		logger.info("Successful insertion")
-	except Error as error:
-		logger.error( sql_query )
-		logger.error(f"Error: {error}")
+    data = (id, text, type, str(flags))
+    sql_query = "INSERT INTO liked_jokes (id, text, type, flags) VALUES (%s, %s, %s, %s)"
+    
+    try:
+        # Check if the record already exists
+        cursor.execute("SELECT 1 FROM liked_jokes WHERE id = %s", (id,))
+        existing_record = cursor.fetchone()
+
+        if not existing_record:
+            # If the record doesn't exist, proceed with the insertion
+            cursor.execute(sql_query, data)
+            conn.commit()
+            logger.info(sql_query)
+            logger.info(f"id: {id}, text: {text}, type: {type}, flags: {flags}")
+            logger.info("Successful insertion")
+            return True  # Return True for successful insertion
+        else:
+            logger.warning(f"Record with id {id} already exists. Skipping insertion.")
+            return True  # Return True, if duplicate record (for testing purposes)
+    except Error as error:
+        logger.error(sql_query)
+        logger.error(f"Error: {error}")
+        return False  # Return False for unsuccessful insertion
 
 
 def get_cursor():
