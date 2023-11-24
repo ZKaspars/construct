@@ -1,2 +1,0 @@
-ALTER TABLE liked_jokes
-ADD COLUMN date_added DATE DEFAULT CURRENT_DATE();
