@@ -45,9 +45,9 @@ def init_db():
 init_db()
 
 #insert joke into db
-def insert_joke_into_db(id, text, type, flags):
-    data = (id, text, type, str(flags))
-    sql_query = "INSERT INTO liked_jokes (id, text, type, flags) VALUES (%s, %s, %s, %s)"
+def insert_joke_into_db(id, text, type, flags, date):
+    data = (id, text, type, str(flags), date)
+    sql_query = "INSERT INTO liked_jokes (id, text, type, flags, date) VALUES (%s, %s, %s, %s, %s)"
     
     try:
         # Check if the record already exists
@@ -59,7 +59,7 @@ def insert_joke_into_db(id, text, type, flags):
             cursor.execute(sql_query, data)
             conn.commit()
             logger.info(sql_query)
-            logger.info(f"id: {id}, text: {text}, type: {type}, flags: {flags}")
+            logger.info(f"id: {id}, text: {text}, type: {type}, flags: {flags}, date: {date}")
             logger.info("Successful insertion")
             return True  # Return True for successful insertion
         else:

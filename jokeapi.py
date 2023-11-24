@@ -2,6 +2,7 @@ import requests
 import json
 from db import *
 import choice_selector
+from datetime import datetime
 
 def get_user_choice():
     while True:
@@ -46,6 +47,10 @@ try:
 except Error as e:
     logger.error(f"Error selecting categories/flags:{e}")
 
+def get_date_time():
+    now = datetime.now()
+    mysql_format = now.strftime("%Y-%m-%d %H:%M:%S")
+    return mysql_format
 
 # check if connection to api exists
 def getJoke():
@@ -120,12 +125,11 @@ def getJoke():
         if ans == 'y':
             try:
                 logger.info(f"Inserting joke into db")
-                insert_joke_into_db(joke_id,joke_txt,joke_type,flag_list)
+                date_and_time = get_date_time()
+                insert_joke_into_db(joke_id,joke_txt,joke_type,flag_list,date_and_time)
             except:
                 logger.error(f"Couldn't insert joke into db")
     else:
         logger.error(f"Can't connect to API. Status code: {str(req.status_code)}")
         print(f"Problems connecting to API. Status code: {str(req.status_code)}")
     return 0
-
-
