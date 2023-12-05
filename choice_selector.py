@@ -1,8 +1,5 @@
 from db import *
 
-
-api_url = "https://v2.jokeapi.dev/joke/"
-
 # these lists are used as key when sorting
 categories = ["Programming","Misc","Dark"\
                 ,"Pun","Spooky","Christmas","Any"]
@@ -69,7 +66,7 @@ def choice_selector(kind):
     while True:
         try:
             answer = ""
-            acceptable_answers = [0,1,2,3,4,5,6,"none","any","s"]
+            acceptable_answers = ["0","1","2","3","4","5","6","s"]
 
             # prints possible choices in one line
             for index, value in enumerate(working_list):
@@ -79,7 +76,7 @@ def choice_selector(kind):
 
             print("Press S to stop selection")
             inp = str(input("Your input: ").lower())
-            if inp not in acceptable_answers and int(inp) not in acceptable_answers:
+            if inp not in acceptable_answers:
                 logging.debug(f"{inp} is not in {acceptable_answers}")
                 print("invalid input!")
                 continue
@@ -106,6 +103,32 @@ def choice_selector(kind):
         except Error as e:
             logger.error(f"Error: {e}")
 
+def createUrl(categories_string,flags_string):
+    api_url = "https://v2.jokeapi.dev/joke/"
+
+    cat_length = len(categories_string)
+    flag_length = len(flags_string)
+
+    # url if no selections made
+    if cat_length<1 and flag_length<1:
+        logger.debug("Flags and categories are empty")
+        final_url = "https://v2.jokeapi.dev/joke/Any"
+    # url if there are no blacklisted flags but there are categories
+    elif flag_length<1:
+        logger.debug(f"No Flags, but Categories: {categories_string} received")
+        final_url = f"{api_url}{categories_string}"
+    # url with only flags
+    elif cat_length<1 and flag_length>0:
+        logger.debug(f"No Categories, but Flags {flags_string} received")
+        final_url = f"https://v2.jokeapi.dev/joke/Any?{flags_string} "
+    else:
+    # url with categories and blacklisted flags
+        logger.debug(f"Categories: {categories_string}, and Flags: {flags_string} received")
+        final_url = f"{api_url}{categories_string}?blacklistFlags={flags_string}"
+
+    # return combined url
+    return final_url
+
 # this is called to set both category and flags using previous function
 def runSelections():
     global chosen_categories
@@ -121,24 +144,14 @@ def runSelections():
     categories_string = ','.join(chosen_categories)
     flags_string = ','.join(chosen_flags)
 
-    final_url = ""
-    # if any category and no blacklists, provide basic url
-    if not chosen_categories and not chosen_flags:
-        logger.debug("Flags and categories are empty")
-        final_url = "https://v2.jokeapi.dev/joke/Any"
-    # url if there are no blacklisted flags but there are categories
-    elif not chosen_flags:
-        logger.debug(f"No Flags and Categories: {categories_string} received")
-        final_url = f"{api_url}{categories_string}"
-    # url with only flags
-    elif not chosen_categories and chosen_flags:
-        logger.debug(f"No Flags and Categories: {flags_string} received")
-        final_url = f"https://v2.jokeapi.dev/joke/Any?{flags_string} "
-    else:
-    # url with categories and blacklisted flags
-        logger.debug(f"Categories: {categories_string}, and Flags: {flags_string} received")
-        final_url = f"{api_url}{categories_string}?blacklistFlags={flags_string}"
+    final_url = createUrl(categories_string,flags_string)
 
     logger.info(f"final_url is {final_url}")
     # return combined url
     return final_url
+
+def defaultSelections():
+    #default blacklist flags: excluding nsfw, racist and sexit jokes
+    return "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,racist,sexist"
+
+
