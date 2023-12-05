@@ -3,7 +3,7 @@
 # Release 1.1 - added ability to choose categories and flags, as well as migrations and db connection
 
 
-# Release 1.5.0 - added file for exam
+# Release 1.6.0 - added file for exam again :D
 
 ! requires MYSQL community full install with MYSQL Server 8.0 for procedures to work
 
