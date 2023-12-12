@@ -30,11 +30,11 @@ example of jokeapi json reply:<br />
     "flags": {<br />
         "nsfw": false,<br />
         "religious": false,<br />
-        "political": false,
-        "racist": false,
-        "sexist": false,
-        "explicit": false
-    },
+        "political": false, <br />
+        "racist": false, <br />
+        "sexist": false, <br />
+        "explicit": false <br />
+    }, <br />
     "id": 38,
     "safe": true,
     "lang": "en"
