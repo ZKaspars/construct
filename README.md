@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 # Release 1.7 -  test implementation finished 
 
-=======
-# Release 1.7 -  test implementation finished. 
-izmainas
->>>>>>> exam_hotfix
-
 ! requires MYSQL community full install with MYSQL Server 8.0 for procedures to work
 
 libraries:
